@@ -1,0 +1,48 @@
+{
+  "projects": [
+    {
+      "id": "01",
+      "location": "上海, 2023",
+      "title": "光之回响",
+      "description": "一个位于城市中心广场的大型互动灯光装置。作品通过捕捉周围环境的声音和人流，将其转化为流动的光影变化，创造了一个不断演变的沉浸式体验。",
+      "full_description": "一个位于城市中心广场的大型互动灯光装置。作品通过捕捉周围环境的声音和人流，将其转化为流动的光影变化，创造了一个不断演变的沉浸式体验，探讨了科技、自然与城市生活的共生关系。",
+      "image": "https://placehold.co/1200x800/eeeeee/333333?text=项目:光之回响",
+      "order": "left"
+    },
+    {
+      "id": "02",
+      "location": "深圳, 2022",
+      "title": "城市根茎",
+      "description": "该作品将废弃的工业管道重新利用，编织成一个贯穿公园的雕塑网络，将工业遗存转化为具有生命力的社区地标。",
+      "full_description": "该作品将废弃的工业管道重新利用，编织成一个贯穿公园的雕塑网络。它象征着城市的历史记忆与新生长的脉络，邀请公众穿行、触摸和感受，将工业遗存转化为具有生命力的社区地标。",
+      "image": "https://placehold.co/1200x800/f5f5f5/333333?text=项目:城市根茎",
+      "order": "right"
+    }
+  ],
+  "journal": [
+    {
+      "image": "https://placehold.co/600x800/fafafa/333?text=草图",
+      "alt": "创作草图"
+    },
+    {
+      "image": "https://placehold.co/600x400/f1f1f1/333?text=模型",
+      "alt": "项目模型"
+    },
+    {
+      "image": "https://placehold.co/600x700/f8f8f8/333?text=工作坊",
+      "alt": "工作坊照片"
+    },
+    {
+      "image": "https://placehold.co/600x500/f3f3f3/333?text=材料测试",
+      "alt": "材料测试"
+    },
+    {
+      "image": "https://placehold.co/600x900/fefefe/333?text=现场勘景",
+      "alt": "现场勘景"
+    },
+    {
+      "image": "https://placehold.co/600x600/f6f6f6/333?text=细节",
+      "alt": "作品细节"
+    }
+  ]
+}

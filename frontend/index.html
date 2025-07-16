@@ -1,0 +1,576 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>姚琪美的艺术世界</title>
+    <!-- 引入Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- 引入Google Fonts: Inter & Source Code Pro for a "blueprint" feel -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;700&family=Source+Code+Pro:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        /* 自定义样式 */
+        :root {
+            --ease-out-cubic: cubic-bezier(0.215, 0.610, 0.355, 1.000);
+        }
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #ffffff; /* 白色背景 */
+            color: #1f2937; /* 深灰色文字 */
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+        /* 加载动画 */
+        .loader {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #fff;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 10000;
+            transition: opacity 0.8s var(--ease-out-cubic);
+        }
+        .loader.hidden {
+            opacity: 0;
+            pointer-events: none;
+        }
+        .loader-name {
+            font-size: 2rem;
+            color: #000;
+            letter-spacing: 0.5em;
+            filter: blur(8px);
+            animation: unblur 2s forwards;
+        }
+        @keyframes unblur {
+            to { filter: blur(0); }
+        }
+
+        /* 光影跟随效果 */
+        #mouse-light {
+            position: fixed;
+            width: 800px;
+            height: 800px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(0, 0, 0, 0.04) 0%, rgba(0, 0, 0, 0) 60%);
+            pointer-events: none;
+            z-index: 0;
+            transition: transform 0.3s ease-out;
+            transform: translate(-50%, -50%);
+        }
+
+        .font-mono {
+            font-family: 'Source Code Pro', monospace;
+        }
+        /* 导航栏悬停效果 */
+        .nav-link { position: relative; }
+        .nav-link::after {
+            content: '';
+            position: absolute;
+            width: 100%;
+            height: 1px;
+            background-color: #ffffff;
+            bottom: -5px;
+            left: 0;
+            transform: scaleX(0);
+            transform-origin: right;
+            transition: transform 0.4s var(--ease-out-cubic);
+        }
+        .nav-link:hover::after {
+            transform: scaleX(1);
+            transform-origin: left;
+        }
+        header.scrolled {
+            background-color: rgba(0,0,0,0.5);
+            backdrop-filter: blur(10px);
+        }
+
+        /* 视差背景 */
+        .parallax-bg {
+            background-attachment: fixed;
+            background-position: center;
+            background-repeat: no-repeat;
+            background-size: cover;
+        }
+        /* 滚动淡入动画 */
+        .reveal {
+            opacity: 0;
+            transform: translateY(50px);
+            transition: opacity 1.2s var(--ease-out-cubic), transform 1.2s var(--ease-out-cubic);
+        }
+        .reveal.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        /* 项目卡片图片效果 */
+        .project-image-container {
+            overflow: hidden;
+            border-radius: 0.375rem; /* rounded-md */
+            position: relative;
+        }
+        .project-image-container::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: #fff; /* 白色遮罩 */
+            z-index: 2;
+            transform: scaleY(1);
+            transform-origin: top;
+            transition: transform 1s var(--ease-out-cubic);
+        }
+        .reveal.visible .project-image-container::before {
+            transform: scaleY(0);
+            transform-origin: bottom;
+        }
+        .project-image {
+            transition: transform 0.5s ease;
+        }
+        .project-card:hover .project-image {
+            transform: scale(1.05);
+        }
+        /* 图片悬停边框动画 */
+        .image-border-wrap {
+            position: relative;
+            padding: 10px;
+        }
+        .image-border-wrap::before, .image-border-wrap::after {
+            content: '';
+            position: absolute;
+            background-color: #000;
+            transition: transform 0.4s var(--ease-out-cubic);
+        }
+        .image-border-wrap::before {
+            width: 2px;
+            height: 100%;
+            top: 0;
+            left: 0;
+            transform: scaleY(0);
+            transform-origin: top;
+        }
+        .image-border-wrap::after {
+            width: 100%;
+            height: 2px;
+            bottom: 0;
+            left: 0;
+            transform: scaleX(0);
+            transform-origin: left;
+        }
+        .project-card:hover .image-border-wrap::before {
+            transform: scaleY(1);
+        }
+        .project-card:hover .image-border-wrap::after {
+            transform: scaleX(1);
+        }
+
+
+        /* 艺术理念引言样式 */
+        .quote-wrapper {
+            position: relative;
+        }
+        .quote-wrapper::before {
+            content: '“';
+            position: absolute;
+            top: -2rem;
+            left: -1rem;
+            font-size: 8rem;
+            color: #f3f4f6; /* very light gray */
+            z-index: -1;
+            line-height: 1;
+        }
+
+        /* 查看详情按钮动画 */
+        .detail-button {
+            overflow: hidden;
+            position: relative;
+            display: inline-block;
+        }
+        .detail-button .text-span {
+            display: inline-block;
+            transition: transform 0.4s var(--ease-out-cubic);
+        }
+        .detail-button:hover .text-span {
+            transform: translateY(-100%);
+        }
+        .detail-button::after {
+            content: attr(data-text);
+            position: absolute;
+            left: 0;
+            top: 0;
+            transform: translateY(100%);
+            transition: transform 0.4s var(--ease-out-cubic);
+        }
+        .detail-button:hover::after {
+            transform: translateY(0);
+        }
+
+        /* 返回顶部按钮 */
+        #back-to-top {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            width: 3rem;
+            height: 3rem;
+            background-color: #000;
+            color: #fff;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s, transform 0.3s;
+            z-index: 50;
+        }
+        #back-to-top.visible {
+            opacity: 1;
+            pointer-events: auto;
+        }
+        #back-to-top:hover {
+            transform: translateY(-5px);
+        }
+        
+        /* 项目编号样式 */
+        .project-number {
+            position: absolute;
+            top: -2rem;
+            left: -2rem;
+            font-size: 10rem;
+            font-weight: 700;
+            color: #f9fafb; /* very light gray, almost white */
+            z-index: -1;
+            line-height: 1;
+        }
+
+        /* 创作手记瀑布流布局 */
+        .journal-grid {
+            column-count: 2;
+            column-gap: 1.5rem;
+        }
+        @media (min-width: 768px) {
+            .journal-grid {
+                column-count: 3;
+            }
+        }
+        .journal-item {
+            margin-bottom: 1.5rem;
+            break-inside: avoid;
+        }
+        .journal-item img {
+            width: 100%;
+            height: auto;
+            border-radius: 0.25rem;
+            transition: filter 0.3s ease;
+        }
+        .journal-item:hover img {
+            filter: brightness(1.1);
+        }
+    </style>
+</head>
+<body class="bg-white">
+    
+    <!-- 加载动画 -->
+    <div id="loader" class="loader">
+        <div class="loader-name">姚琪美的艺术世界</div>
+    </div>
+    
+    <!-- 光影跟随元素 -->
+    <div id="mouse-light"></div>
+
+    <!-- 导航栏 (保持深色) -->
+    <header id="header" class="fixed top-0 left-0 right-0 z-50 transition-colors duration-500">
+        <div class="container mx-auto px-6 py-5 flex justify-between items-center">
+            <a href="#home" class="text-xl font-bold text-white tracking-widest uppercase">姚琪美</a>
+            <nav class="hidden md:flex items-center space-x-10 text-sm uppercase tracking-wider">
+                <a href="#projects" class="text-gray-300 hover:text-white transition-colors nav-link">项目</a>
+                <a href="#philosophy" class="text-gray-300 hover:text-white transition-colors nav-link">理念</a>
+                <a href="#journal" class="text-gray-300 hover:text-white transition-colors nav-link">手记</a>
+                <a href="#map" class="text-gray-300 hover:text-white transition-colors nav-link">足迹</a>
+                <a href="#contact" class="text-gray-300 hover:text-white transition-colors nav-link">联系</a>
+            </nav>
+            <button id="mobile-menu-button" class="md:hidden text-white">
+                <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7" /></svg>
+            </button>
+        </div>
+        <div id="mobile-menu" class="hidden md:hidden bg-black"><a href="#projects" class="block text-center py-4 px-4 text-gray-300 hover:bg-gray-900">项目</a><a href="#philosophy" class="block text-center py-4 px-4 text-gray-300 hover:bg-gray-900">理念</a><a href="#journal" class="block text-center py-4 px-4 text-gray-300 hover:bg-gray-900">手记</a><a href="#map" class="block text-center py-4 px-4 text-gray-300 hover:bg-gray-900">足迹</a><a href="#contact" class="block text-center py-4 px-4 text-gray-300 hover:bg-gray-900">联系</a></div>
+    </header>
+
+    <!-- 主体内容 -->
+    <main class="relative z-10 opacity-0" id="main-content">
+        <!-- 首页 Hero 部分 -->
+        <section id="home" class="h-screen flex items-center justify-center parallax-bg" style="background-image: url('https://placehold.co/1920x1080/e0e0e0/333333?text=城市景观艺术');">
+            <div class="text-center text-black p-8 bg-white/50 backdrop-blur-sm rounded-lg">
+                <h1 class="text-4xl md:text-6xl font-bold tracking-tight">重塑公共空间叙事</h1>
+                <p class="mt-4 text-lg md:text-xl text-gray-800 max-w-2xl mx-auto">艺术作为城市肌理的一部分，连接人与环境的对话。</p>
+            </div>
+        </section>
+
+        <!-- 项目展示 -->
+        <section id="projects" class="py-20 md:py-32 bg-transparent">
+            <div class="container mx-auto px-6">
+                <div class="space-y-24 md:space-y-32" id="projects-container">
+                    <!-- 项目将由JS动态生成 -->
+                </div>
+            </div>
+        </section>
+
+        <!-- 艺术理念 -->
+        <section id="philosophy" class="py-20 md:py-32 bg-transparent">
+            <div class="container mx-auto px-6 reveal">
+                <div class="max-w-3xl mx-auto text-center">
+                    <h2 class="text-3xl md:text-4xl mb-12 text-gray-900">艺术理念</h2>
+                    <div class="quote-wrapper">
+                        <p class="text-2xl text-gray-800 mb-8 leading-relaxed">
+                            我相信艺术不应被束之高阁，而应成为日常的呼吸。我的实践是探索如何将艺术植入公共领域，让它成为一种催化剂，激发人们对所处环境的重新感知和思考。
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+        <!-- 创作手记 -->
+        <section id="journal" class="py-20 md:py-32 bg-transparent">
+            <div class="container mx-auto px-6 reveal">
+                <div class="max-w-3xl mx-auto text-center mb-16">
+                    <h2 class="text-3xl md:text-4xl mb-4 text-gray-900">创作手记</h2>
+                    <p class="text-gray-600">灵感的瞬间、过程的推敲与最终呈现背后的故事。</p>
+                </div>
+                <div class="journal-grid" id="journal-container">
+                    <!-- 手记条目将由JS动态生成 -->
+                </div>
+            </div>
+        </section>
+
+        <!-- 作品足迹地图 -->
+        <section id="map" class="py-20 md:py-32 bg-transparent">
+            <div class="container mx-auto px-6 text-center reveal">
+                <h2 class="text-3xl md:text-4xl mb-4 text-gray-900">作品足迹</h2>
+                <p class="text-gray-600 mb-12 max-w-2xl mx-auto">我的作品散布于全球多个城市，它们在各自的土地上呼吸，与当地的文化交融。</p>
+                <div class="border border-gray-200 p-4 rounded-lg">
+                    <img src="https://placehold.co/1600x800/ffffff/cccccc?text=世界地图+与+作品标记点" alt="作品分布地图" class="w-full h-auto rounded-sm">
+                </div>
+            </div>
+        </section>
+
+        <!-- 联系方式 -->
+        <section id="contact" class="py-20 md:py-32 bg-transparent">
+            <div class="container mx-auto px-6 text-center reveal">
+                <h2 class="text-3xl md:text-4xl mb-4 text-gray-900">联系与合作</h2>
+                <p class="text-gray-600 mb-8 max-w-2xl mx-auto">对于项目委托、展览邀请或媒体垂询，请通过邮件联系。</p>
+                <a href="mailto:your.email@example.com" class="inline-block bg-black text-white font-bold py-3 px-10 rounded-full hover:bg-gray-800 transition-colors text-lg tracking-wider">
+                    your.email@example.com
+                </a>
+                <div class="mt-20 border-t border-gray-200 pt-12 max-w-4xl mx-auto">
+                    <h4 class="text-xl text-gray-900 mb-6">媒体与展览</h4>
+                    <div class="text-left grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-4 text-gray-600">
+                        <p><span class="font-mono text-gray-400">[2023]</span> Art & Space Magazine - 封面专题</p>
+                        <p><span class="font-mono text-gray-400">[2023]</span> 威尼斯建筑双年展 - 平行展</p>
+                        <p><span class="font-mono text-gray-400">[2022]</span> Urbanism Today - “年度公共艺术家”</p>
+                        <p><span class="font-mono text-gray-400">[2021]</span> “城市回响”个展 - 纽约现代艺术博物馆</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- 页脚 -->
+    <footer class="bg-transparent py-8 relative z-10">
+        <div class="container mx-auto px-6 text-center text-gray-400">
+            <p>&copy; <span id="year"></span> 姚琪美. 版权所有.</p>
+        </div>
+    </footer>
+
+    <!-- 返回顶部按钮 -->
+    <button id="back-to-top" title="返回顶部">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7" />
+        </svg>
+    </button>
+
+    <!-- 项目详情模态框/灯箱 (保持深色) -->
+    <div id="modal" class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-90 opacity-0 pointer-events-none transition-opacity duration-300">
+        <div id="modal-content" class="relative bg-black max-w-5xl w-11/12 max-h-[90vh] p-6 rounded-lg transform scale-95 transition-all duration-300 overflow-y-auto border border-gray-800">
+            <button onclick="closeModal()" class="absolute top-4 right-4 text-white hover:text-gray-400 text-3xl">&times;</button>
+            <div class="flex flex-col md:flex-row gap-8">
+                <div class="md:w-2/3">
+                    <img id="modal-img" src="" alt="放大的艺术作品" class="w-full h-auto object-contain rounded">
+                </div>
+                <div class="md:w-1/3 flex flex-col">
+                    <div>
+                        <p id="modal-location" class="font-mono text-sm text-gray-400"></p>
+                        <h5 id="modal-title" class="text-3xl mt-2 mb-4 text-white"></h5>
+                        <p id="modal-desc" class="text-gray-300 leading-relaxed"></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // --- 页面加载和数据获取 ---
+        window.addEventListener('load', () => {
+            const loader = document.getElementById('loader');
+            const mainContent = document.getElementById('main-content');
+            
+            fetchAndRenderData().then(() => {
+                initializePage();
+                setTimeout(() => {
+                    loader.classList.add('hidden');
+                    mainContent.style.transition = 'opacity 1s ease-in-out';
+                    mainContent.style.opacity = '1';
+                }, 500);
+            }).catch(error => {
+                console.error('Failed to load site data:', error);
+                loader.classList.add('hidden');
+                mainContent.style.opacity = '1';
+                document.body.innerHTML = '<h1 class="text-center text-red-500 mt-20">无法加载网站内容，请稍后重试。</h1>';
+            });
+        });
+
+        async function fetchAndRenderData() {
+            // 在本地开发时，需要指定完整的后端地址
+            // 部署后，将变为相对路径 '/api/data'
+            const response = await fetch('/api/data'); 
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+            const data = await response.json();
+            renderProjects(data.projects);
+            renderJournal(data.journal);
+        }
+
+        function renderProjects(projects) {
+            const container = document.getElementById('projects-container');
+            if (!container) return;
+            container.innerHTML = '';
+            projects.forEach(project => {
+                const isRightOrder = project.order === 'right';
+                const projectHTML = `
+                    <div class="project-card reveal grid grid-cols-1 md:grid-cols-5 gap-10 items-center relative">
+                        <span class="project-number">${project.id}</span>
+                        <div class="md:col-span-3 ${isRightOrder ? 'md:order-2' : ''} project-image-container">
+                             <div class="image-border-wrap">
+                                <img src="${project.image}" alt="${project.title}" class="project-image w-full h-full object-cover">
+                             </div>
+                        </div>
+                        <div class="md:col-span-2 ${isRightOrder ? 'md:order-1 text-left md:text-right' : 'text-left'}">
+                            <p class="font-mono text-sm text-gray-500">${project.location}</p>
+                            <h3 class="text-4xl md:text-5xl mt-2 mb-6 text-gray-900 leading-tight">${project.title}</h3>
+                            <p class="text-gray-700 leading-relaxed mb-8">${project.description}</p>
+                            <a href="javascript:void(0)" onclick="openModal('${project.image}', '${project.title}', '${project.location}', '${project.full_description.replace(/'/g, "\\'")}')" class="font-mono text-gray-900 hover:text-gray-600 transition-colors group detail-button" data-text="${isRightOrder ? '←' : ''} 查看详情 ${isRightOrder ? '' : '→'}">
+                                <span class="text-span">${isRightOrder ? '←' : ''} 查看详情 ${isRightOrder ? '' : '→'}</span>
+                            </a>
+                        </div>
+                    </div>
+                `;
+                container.innerHTML += projectHTML;
+            });
+        }
+
+        function renderJournal(journalItems) {
+            const grid = document.getElementById('journal-container');
+            if (!grid) return;
+            grid.innerHTML = '';
+            journalItems.forEach(item => {
+                const itemHTML = `
+                    <div class="journal-item"><img src="${item.image}" alt="${item.alt}"></div>
+                `;
+                grid.innerHTML += itemHTML;
+            });
+        }
+
+        // --- 页面交互初始化 ---
+        function initializePage() {
+            document.getElementById('year').textContent = new Date().getFullYear();
+            
+            const mouseLight = document.getElementById('mouse-light');
+            window.addEventListener('mousemove', (e) => {
+                mouseLight.style.left = e.clientX + 'px';
+                mouseLight.style.top = e.clientY + 'px';
+            });
+
+            const header = document.getElementById('header');
+            window.addEventListener('scroll', () => {
+                if (window.scrollY > 50) {
+                    header.classList.add('scrolled');
+                } else {
+                    header.classList.remove('scrolled');
+                }
+            });
+
+            const backToTopButton = document.getElementById('back-to-top');
+            function updateScroll() {
+                if (window.scrollY > 300) {
+                    backToTopButton.classList.add('visible');
+                } else {
+                    backToTopButton.classList.remove('visible');
+                }
+            }
+            window.addEventListener('scroll', updateScroll);
+            backToTopButton.addEventListener('click', () => {
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            });
+
+            document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+                anchor.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    const targetElement = document.querySelector(this.getAttribute('href'));
+                    if(targetElement) {
+                        targetElement.scrollIntoView({ behavior: 'smooth' });
+                    }
+                });
+            });
+
+            const revealElements = document.querySelectorAll('.reveal');
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('visible');
+                    }
+                });
+            }, { threshold: 0.1 });
+            revealElements.forEach(el => observer.observe(el));
+        }
+
+        // --- 模态框逻辑 ---
+        const modal = document.getElementById('modal');
+        const modalContent = document.getElementById('modal-content');
+        const modalImg = document.getElementById('modal-img');
+        const modalTitle = document.getElementById('modal-title');
+        const modalLocation = document.getElementById('modal-location');
+        const modalDesc = document.getElementById('modal-desc');
+
+        function openModal(src, title, location, desc) {
+            modalImg.src = src;
+            modalTitle.textContent = title;
+            modalLocation.textContent = location;
+            modalDesc.textContent = desc;
+            document.body.style.overflow = 'hidden';
+            modal.classList.remove('opacity-0', 'pointer-events-none');
+            setTimeout(() => modalContent.classList.remove('scale-95'), 20);
+        }
+
+        function closeModal() {
+            modalContent.classList.add('scale-95');
+            modal.classList.add('opacity-0');
+            setTimeout(() => {
+                modal.classList.add('pointer-events-none');
+                document.body.style.overflow = '';
+            }, 300);
+        }
+        modal.addEventListener('click', (event) => {
+            if (event.target === modal) closeModal();
+        });
+        document.addEventListener('keydown', (event) => {
+            if (event.key === 'Escape') closeModal();
+        });
+    </script>
+</body>
+</html>

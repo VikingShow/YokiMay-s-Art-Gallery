@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>艺术家网站 - 内容管理</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body { background-color: #f3f4f6; font-family: sans-serif; }
+        .card { background: white; border-radius: 8px; padding: 24px; margin-bottom: 24px; box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1); }
+        .label { display: block; font-weight: 600; margin-bottom: 8px; color: #374151; }
+        .input { width: 100%; border: 1px solid #d1d5db; border-radius: 4px; padding: 8px 12px; }
+        .btn { padding: 8px 16px; border-radius: 4px; font-weight: 600; cursor: pointer; transition: background-color 0.2s; }
+        .btn-primary { background-color: #1f2937; color: white; }
+        .btn-primary:hover { background-color: #374151; }
+        .btn-danger { background-color: #ef4444; color: white; }
+        .btn-danger:hover { background-color: #f87171; }
+        .btn-secondary { background-color: #e5e7eb; color: #374151; }
+        .btn-secondary:hover { background-color: #d1d5db; }
+    </style>
+</head>
+<body class="p-8">
+
+    <!-- 登录界面 -->
+    <div id="login-section" class="max-w-md mx-auto mt-20">
+        <div class="card">
+            <h1 class="text-2xl font-bold mb-4 text-center">后台管理登录</h1>
+            <p id="login-error" class="text-red-500 text-center mb-4 hidden"></p>
+            <div>
+                <label for="password" class="label">密码</label>
+                <input type="password" id="password-input" class="input" placeholder="请输入管理员密码">
+            </div>
+            <button id="login-button" class="btn btn-primary w-full mt-6">登录</button>
+        </div>
+    </div>
+
+    <!-- 内容管理界面 (默认隐藏) -->
+    <div id="management-section" class="max-w-4xl mx-auto hidden">
+        <h1 class="text-3xl font-bold mb-6">内容管理</h1>
+        
+        <!-- 项目管理 -->
+        <div class="card">
+            <h2 class="text-2xl font-bold mb-4">项目管理</h2>
+            <div id="projects-container" class="space-y-6">
+                <!-- 项目将由JS动态生成 -->
+            </div>
+            <button id="add-project" class="btn btn-secondary mt-6">＋ 添加新项目</button>
+        </div>
+
+        <!-- 手记管理 -->
+        <div class="card">
+            <h2 class="text-2xl font-bold mb-4">手记管理</h2>
+            <div id="journal-container" class="space-y-4">
+                <!-- 手记条目将由JS动态生成 -->
+            </div>
+            <button id="add-journal" class="btn btn-secondary mt-6">＋ 添加新手记图片</button>
+        </div>
+
+        <!-- 保存按钮 -->
+        <div class="mt-8 text-right">
+            <button id="save-all" class="btn btn-primary text-lg px-8 py-3">保存所有更改</button>
+        </div>
+    </div>
+
+    <script>
+        const loginSection = document.getElementById('login-section');
+        const managementSection = document.getElementById('management-section');
+        const loginButton = document.getElementById('login-button');
+        const passwordInput = document.getElementById('password-input');
+        const loginError = document.getElementById('login-error');
+
+        // --- 认证逻辑 ---
+        async function attemptLogin() {
+            const password = passwordInput.value;
+            if (!password) {
+                showLoginError('请输入密码。');
+                return;
+            }
+
+            try {
+                // 使用新密码尝试获取数据
+                const response = await fetch('/api/admin/data', {
+                    headers: { 'X-Admin-Password': password }
+                });
+
+                if (response.ok) {
+                    // 登录成功
+                    sessionStorage.setItem('admin-password', password); // 将密码存入会话
+                    loginSection.classList.add('hidden');
+                    managementSection.classList.remove('hidden');
+                    const data = await response.json();
+                    renderProjects(data.projects);
+                    renderJournal(data.journal);
+                } else {
+                    // 登录失败
+                    showLoginError('密码错误，请重试。');
+                }
+            } catch (error) {
+                console.error('Login error:', error);
+                showLoginError('无法连接到服务器。');
+            }
+        }
+
+        function showLoginError(message) {
+            loginError.textContent = message;
+            loginError.classList.remove('hidden');
+        }
+
+        loginButton.addEventListener('click', attemptLogin);
+        passwordInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                attemptLogin();
+            }
+        });
+        
+        // 检查会话中是否已有密码，实现自动登录
+        function checkSession() {
+            const storedPassword = sessionStorage.getItem('admin-password');
+            if (storedPassword) {
+                passwordInput.value = storedPassword;
+                attemptLogin();
+            }
+        }
+
+        // --- 数据渲染 ---
+        function renderProjects(projects) {
+            const container = document.getElementById('projects-container');
+            container.innerHTML = '';
+            projects.forEach((p, index) => {
+                container.innerHTML += createProjectHTML(p, index);
+            });
+        }
+
+        function renderJournal(journal) {
+            const container = document.getElementById('journal-container');
+            container.innerHTML = '';
+            journal.forEach((j, index) => {
+                container.innerHTML += createJournalHTML(j, index);
+            });
+        }
+
+        // --- HTML模板 ---
+        function createProjectHTML(project, index) {
+            return `
+                <div class="project-item border-t pt-6">
+                    <h3 class="text-xl font-bold mb-4">项目 #${index + 1}</h3>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div><label class="label">ID (例如: 01, 02)</label><input class="input" value="${project.id || ''}"></div>
+                        <div><label class="label">地点与年份</label><input class="input" value="${project.location || ''}"></div>
+                        <div class="col-span-2"><label class="label">标题</label><input class="input" value="${project.title || ''}"></div>
+                        <div class="col-span-2"><label class="label">图片URL</label><input class="input" value="${project.image || ''}"></div>
+                        <div><label class="label">简短描述</label><textarea class="input h-24">${project.description || ''}</textarea></div>
+                        <div><label class="label">完整描述</label><textarea class="input h-24">${project.full_description || ''}</textarea></div>
+                        <div><label class="label">图片位置 (left/right)</label><input class="input" value="${project.order || 'left'}"></div>
+                    </div>
+                    <button onclick="removeElement(this, '.project-item')" class="btn btn-danger mt-4">删除此项目</button>
+                </div>
+            `;
+        }
+
+        function createJournalHTML(journal, index) {
+            return `
+                <div class="journal-item flex items-center gap-4">
+                    <div class="flex-grow"><label class="label">图片 #${index + 1} URL</label><input class="input" value="${journal.image || ''}"></div>
+                    <div class="flex-grow"><label class="label">图片描述 (alt)</label><input class="input" value="${journal.alt || ''}"></div>
+                    <button onclick="removeElement(this, '.journal-item')" class="btn btn-danger self-end">删除</button>
+                </div>
+            `;
+        }
+        
+        // --- 事件处理 ---
+        document.getElementById('add-project').addEventListener('click', () => {
+            const container = document.getElementById('projects-container');
+            const newProject = { id: '0' + (container.children.length + 1), order: 'left' };
+            container.insertAdjacentHTML('beforeend', createProjectHTML(newProject, container.children.length));
+        });
+
+        document.getElementById('add-journal').addEventListener('click', () => {
+            const container = document.getElementById('journal-container');
+            const newJournal = {};
+            container.insertAdjacentHTML('beforeend', createJournalHTML(newJournal, container.children.length));
+        });
+
+        function removeElement(btn, parentSelector) {
+            btn.closest(parentSelector).remove();
+        }
+
+        // --- 保存数据 ---
+        document.getElementById('save-all').addEventListener('click', async () => {
+            const password = sessionStorage.getItem('admin-password');
+            if (!password) {
+                alert('认证已过期，请重新登录。');
+                location.reload();
+                return;
+            }
+
+            const projectsData = Array.from(document.querySelectorAll('.project-item')).map(item => ({
+                id: item.querySelectorAll('input')[0].value,
+                location: item.querySelectorAll('input')[1].value,
+                title: item.querySelectorAll('input')[2].value,
+                image: item.querySelectorAll('input')[3].value,
+                description: item.querySelectorAll('textarea')[0].value,
+                full_description: item.querySelectorAll('textarea')[1].value,
+                order: item.querySelectorAll('input')[4].value,
+            }));
+            const journalData = Array.from(document.querySelectorAll('.journal-item')).map(item => ({
+                image: item.querySelectorAll('input')[0].value,
+                alt: item.querySelectorAll('input')[1].value,
+            }));
+
+            const fullData = { projects: projectsData, journal: journalData };
+
+            try {
+                const response = await fetch('/api/admin/update', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-Admin-Password': password
+                    },
+                    body: JSON.stringify(fullData)
+                });
+                const result = await response.json();
+                alert(result.message || '保存成功！');
+            } catch (error) {
+                console.error('Error saving data:', error);
+                alert('保存失败，请查看控制台信息。');
+            }
+        });
+
+        // --- 启动 ---
+        checkSession();
+    </script>
+</body>
+</html>
