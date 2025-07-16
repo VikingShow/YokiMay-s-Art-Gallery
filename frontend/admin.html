@@ -16,6 +16,7 @@
         .btn-danger:hover { background-color: #f87171; }
         .btn-secondary { background-color: #e5e7eb; color: #374151; }
         .btn-secondary:hover { background-color: #d1d5db; }
+        .upload-status { font-style: italic; color: #6b7280; }
     </style>
 </head>
 <body class="p-8">
@@ -37,31 +38,25 @@
     <div id="management-section" class="max-w-4xl mx-auto hidden">
         <h1 class="text-3xl font-bold mb-6">内容管理</h1>
         
-        <!-- 项目管理 -->
         <div class="card">
             <h2 class="text-2xl font-bold mb-4">项目管理</h2>
-            <div id="projects-container" class="space-y-6">
-                <!-- 项目将由JS动态生成 -->
-            </div>
+            <div id="projects-container" class="space-y-6"></div>
             <button id="add-project" class="btn btn-secondary mt-6">＋ 添加新项目</button>
         </div>
 
-        <!-- 手记管理 -->
         <div class="card">
             <h2 class="text-2xl font-bold mb-4">手记管理</h2>
-            <div id="journal-container" class="space-y-4">
-                <!-- 手记条目将由JS动态生成 -->
-            </div>
+            <div id="journal-container" class="space-y-4"></div>
             <button id="add-journal" class="btn btn-secondary mt-6">＋ 添加新手记图片</button>
         </div>
 
-        <!-- 保存按钮 -->
         <div class="mt-8 text-right">
             <button id="save-all" class="btn btn-primary text-lg px-8 py-3">保存所有更改</button>
         </div>
     </div>
 
     <script>
+        // --- 全局变量 ---
         const loginSection = document.getElementById('login-section');
         const managementSection = document.getElementById('management-section');
         const loginButton = document.getElementById('login-button');
@@ -75,44 +70,29 @@
                 showLoginError('请输入密码。');
                 return;
             }
-
             try {
-                // 使用新密码尝试获取数据
-                const response = await fetch('/api/admin/data', {
-                    headers: { 'X-Admin-Password': password }
-                });
-
+                // 部署后，应使用相对路径 '/api/admin/data'
+                const response = await fetch('/api/admin/data', { headers: { 'X-Admin-Password': password } });
                 if (response.ok) {
-                    // 登录成功
-                    sessionStorage.setItem('admin-password', password); // 将密码存入会话
+                    sessionStorage.setItem('admin-password', password);
                     loginSection.classList.add('hidden');
                     managementSection.classList.remove('hidden');
                     const data = await response.json();
                     renderProjects(data.projects);
                     renderJournal(data.journal);
                 } else {
-                    // 登录失败
                     showLoginError('密码错误，请重试。');
                 }
             } catch (error) {
-                console.error('Login error:', error);
                 showLoginError('无法连接到服务器。');
             }
         }
-
         function showLoginError(message) {
             loginError.textContent = message;
             loginError.classList.remove('hidden');
         }
-
         loginButton.addEventListener('click', attemptLogin);
-        passwordInput.addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') {
-                attemptLogin();
-            }
-        });
-        
-        // 检查会话中是否已有密码，实现自动登录
+        passwordInput.addEventListener('keypress', (e) => { if (e.key === 'Enter') attemptLogin(); });
         function checkSession() {
             const storedPassword = sessionStorage.getItem('admin-password');
             if (storedPassword) {
@@ -125,17 +105,12 @@
         function renderProjects(projects) {
             const container = document.getElementById('projects-container');
             container.innerHTML = '';
-            projects.forEach((p, index) => {
-                container.innerHTML += createProjectHTML(p, index);
-            });
+            projects.forEach((p, index) => container.innerHTML += createProjectHTML(p, index));
         }
-
         function renderJournal(journal) {
             const container = document.getElementById('journal-container');
             container.innerHTML = '';
-            journal.forEach((j, index) => {
-                container.innerHTML += createJournalHTML(j, index);
-            });
+            journal.forEach((j, index) => container.innerHTML += createJournalHTML(j, index));
         }
 
         // --- HTML模板 ---
@@ -144,10 +119,17 @@
                 <div class="project-item border-t pt-6">
                     <h3 class="text-xl font-bold mb-4">项目 #${index + 1}</h3>
                     <div class="grid grid-cols-2 gap-4">
-                        <div><label class="label">ID (例如: 01, 02)</label><input class="input" value="${project.id || ''}"></div>
+                        <div><label class="label">ID</label><input class="input" value="${project.id || ''}"></div>
                         <div><label class="label">地点与年份</label><input class="input" value="${project.location || ''}"></div>
                         <div class="col-span-2"><label class="label">标题</label><input class="input" value="${project.title || ''}"></div>
-                        <div class="col-span-2"><label class="label">图片URL</label><input class="input" value="${project.image || ''}"></div>
+                        <div class="col-span-2">
+                            <label class="label">图片URL</label>
+                            <div class="flex gap-2 items-center">
+                                <input class="input url-input flex-grow" value="${project.image || ''}">
+                                <button onclick="triggerUpload(this)" class="btn btn-secondary">上传图片</button>
+                            </div>
+                            <p class="upload-status text-sm mt-1"></p>
+                        </div>
                         <div><label class="label">简短描述</label><textarea class="input h-24">${project.description || ''}</textarea></div>
                         <div><label class="label">完整描述</label><textarea class="input h-24">${project.full_description || ''}</textarea></div>
                         <div><label class="label">图片位置 (left/right)</label><input class="input" value="${project.order || 'left'}"></div>
@@ -156,42 +138,80 @@
                 </div>
             `;
         }
-
         function createJournalHTML(journal, index) {
             return `
                 <div class="journal-item flex items-center gap-4">
-                    <div class="flex-grow"><label class="label">图片 #${index + 1} URL</label><input class="input" value="${journal.image || ''}"></div>
+                    <div class="flex-grow">
+                        <label class="label">图片 #${index + 1} URL</label>
+                        <div class="flex gap-2 items-center">
+                           <input class="input url-input flex-grow" value="${journal.image || ''}">
+                           <button onclick="triggerUpload(this)" class="btn btn-secondary">上传图片</button>
+                        </div>
+                        <p class="upload-status text-sm mt-1"></p>
+                    </div>
                     <div class="flex-grow"><label class="label">图片描述 (alt)</label><input class="input" value="${journal.alt || ''}"></div>
                     <button onclick="removeElement(this, '.journal-item')" class="btn btn-danger self-end">删除</button>
                 </div>
             `;
         }
-        
+
         // --- 事件处理 ---
         document.getElementById('add-project').addEventListener('click', () => {
             const container = document.getElementById('projects-container');
             const newProject = { id: '0' + (container.children.length + 1), order: 'left' };
             container.insertAdjacentHTML('beforeend', createProjectHTML(newProject, container.children.length));
         });
-
         document.getElementById('add-journal').addEventListener('click', () => {
             const container = document.getElementById('journal-container');
-            const newJournal = {};
-            container.insertAdjacentHTML('beforeend', createJournalHTML(newJournal, container.children.length));
+            container.insertAdjacentHTML('beforeend', createJournalHTML({}, container.children.length));
         });
-
         function removeElement(btn, parentSelector) {
             btn.closest(parentSelector).remove();
+        }
+
+        // --- 图片上传逻辑 ---
+        function triggerUpload(button) {
+            const fileInput = document.createElement('input');
+            fileInput.type = 'file';
+            fileInput.accept = 'image/*';
+            fileInput.onchange = (e) => handleImageUpload(e, button);
+            fileInput.click();
+        }
+        async function handleImageUpload(event, button) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const urlInput = button.previousElementSibling;
+            const statusP = button.parentElement.nextElementSibling;
+            const password = sessionStorage.getItem('admin-password');
+
+            const formData = new FormData();
+            formData.append('image', file);
+            
+            statusP.textContent = '正在上传...';
+            try {
+                const response = await fetch('/api/admin/upload', {
+                    method: 'POST',
+                    headers: { 'X-Admin-Password': password },
+                    body: formData
+                });
+                const result = await response.json();
+                if (response.ok) {
+                    urlInput.value = result.url;
+                    statusP.textContent = '上传成功！';
+                } else {
+                    throw new Error(result.message || '上传失败');
+                }
+            } catch (error) {
+                console.error('Upload failed:', error);
+                statusP.textContent = `上传失败: ${error.message}`;
+            }
         }
 
         // --- 保存数据 ---
         document.getElementById('save-all').addEventListener('click', async () => {
             const password = sessionStorage.getItem('admin-password');
-            if (!password) {
-                alert('认证已过期，请重新登录。');
-                location.reload();
-                return;
-            }
+            if (!password) { alert('认证已过期，请重新登录。'); location.reload(); return; }
 
             const projectsData = Array.from(document.querySelectorAll('.project-item')).map(item => ({
                 id: item.querySelectorAll('input')[0].value,
@@ -206,22 +226,17 @@
                 image: item.querySelectorAll('input')[0].value,
                 alt: item.querySelectorAll('input')[1].value,
             }));
-
             const fullData = { projects: projectsData, journal: journalData };
 
             try {
                 const response = await fetch('/api/admin/update', {
                     method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-Admin-Password': password
-                    },
+                    headers: { 'Content-Type': 'application/json', 'X-Admin-Password': password },
                     body: JSON.stringify(fullData)
                 });
                 const result = await response.json();
                 alert(result.message || '保存成功！');
             } catch (error) {
-                console.error('Error saving data:', error);
                 alert('保存失败，请查看控制台信息。');
             }
         });
