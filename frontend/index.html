@@ -244,6 +244,13 @@
             color: #f9fafb; /* very light gray, almost white */
             z-index: -1;
             line-height: 1;
+            
+        }
+
+        /* 【新增】当图片在左侧时，将数字序号移动到右侧 */
+        .layout-image-left .project-number {
+            left: auto; /* 取消掉 'left' 定位 */
+            right: -2rem; /* 新增 'right' 定位 */
         }
 
         /* 创作手记瀑布流布局 */
@@ -499,7 +506,7 @@
             projects.forEach(project => {
                 const isRightOrder = project.order === 'right';
                 const projectHTML = `
-                    <div class="project-card reveal grid grid-cols-1 md:grid-cols-5 gap-10 items-center relative">
+                    <div class="project-card reveal grid grid-cols-1 md:grid-cols-5 gap-10 items-center relative ${isRightOrder ? 'layout-image-right' : 'layout-image-left'}">
                         <span class="project-number">${project.id}</span>
                         <div class="md:col-span-3 ${isRightOrder ? 'md:order-2' : ''} project-image-container">
                              <div class="image-border-wrap">
