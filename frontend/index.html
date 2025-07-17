@@ -11,6 +11,10 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;700&family=Source+Code+Pro:wght@400;700&display=swap" rel="stylesheet">
     <style>
+        /* 【新增】为导航栏的背景模糊效果添加平滑过渡 */
+        #header {
+            transition: background-color 0.5s ease, backdrop-filter 0.5s ease;
+        }
         /* 自定义样式 */
         :root {
             --ease-out-cubic: cubic-bezier(0.215, 0.610, 0.355, 1.000);
