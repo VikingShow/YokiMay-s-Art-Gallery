@@ -1,48 +1,66 @@
 {
+  "site_data": {
+    "artist_name": "艺术家姓名",
+    "hero_title": "重塑公共空间叙事",
+    "hero_subtitle": "艺术作为城市肌理的一部分，连接人与环境的对话。",
+    "hero_video_url": "/videos/background.mp4",
+    "philosophy_title": "艺术理念",
+    "philosophy_quote": "我相信艺术不应被束之高阁，而应成为日常的呼吸。我的实践是探索如何将艺术植入公共领域，让它成为一种催化剂，激发人们对所处环境的重新感知和思考。",
+    "journal_title": "创作手记",
+    "journal_subtitle": "灵感的瞬间、过程的推敲与最终呈现背后的故事。",
+    "map_title": "作品足迹",
+    "map_subtitle": "我的作品散布于全球多个城市，它们在各自的土地上呼吸，与当地的文化交融。",
+    "map_image_url": "https://placehold.co/1600x800/ffffff/cccccc?text=世界地图+与+作品标记点",
+    "contact_title": "联系与合作",
+    "contact_subtitle": "对于项目委托、展览邀请或媒体垂询，请通过邮件联系。",
+    "contact_email": "your.email@example.com",
+    "exhibitions": [
+      {
+        "year": "[2023]",
+        "title": "Art & Space Magazine - 封面专题"
+      },
+      {
+        "year": "[2023]",
+        "title": "威尼斯建筑双年展 - 平行展"
+      },
+      {
+        "year": "[2022]",
+        "title": "Urbanism Today - “年度公共艺术家”"
+      },
+      {
+        "year": "[2021]",
+        "title": "“城市回响”个展 - 纽约现代艺术博物馆"
+      }
+    ]
+  },
   "projects": [
     {
       "id": "01",
       "location": "上海, 2023",
       "title": "光之回响",
-      "description": "一个位于城市中心广场的大型互动灯光装置。作品通过捕捉周围环境的声音和人流，将其转化为流动的光影变化，创造了一个不断演变的沉浸式体验。",
+      "description": "一个位于城市中心广场的大型互动灯光装置。",
       "full_description": "一个位于城市中心广场的大型互动灯光装置。作品通过捕捉周围环境的声音和人流，将其转化为流动的光影变化，创造了一个不断演变的沉浸式体验，探讨了科技、自然与城市生活的共生关系。",
-      "image": "https://placehold.co/1200x800/eeeeee/333333?text=项目:光之回响",
+      "image": "/uploads/image-1721163456346-637384353.jpg",
       "order": "left"
     },
     {
       "id": "02",
       "location": "深圳, 2022",
       "title": "城市根茎",
-      "description": "该作品将废弃的工业管道重新利用，编织成一个贯穿公园的雕塑网络，将工业遗存转化为具有生命力的社区地标。",
+      "description": "该作品将废弃的工业管道重新利用，编织成一个贯穿公园的雕塑网络。",
       "full_description": "该作品将废弃的工业管道重新利用，编织成一个贯穿公园的雕塑网络。它象征着城市的历史记忆与新生长的脉络，邀请公众穿行、触摸和感受，将工业遗存转化为具有生命力的社区地标。",
-      "image": "https://placehold.co/1200x800/f5f5f5/333333?text=项目:城市根茎",
+      "image": "/uploads/image-1721163465375-32121323.jpg",
       "order": "right"
     }
   ],
   "journal": [
     {
-      "image": "https://placehold.co/600x800/fafafa/333?text=草图",
+      "image": "/uploads/image-1721163496033-903902213.jpg",
       "alt": "创作草图"
     },
     {
-      "image": "https://placehold.co/600x400/f1f1f1/333?text=模型",
+      "image": "/uploads/image-1721163503295-885400973.jpg",
       "alt": "项目模型"
-    },
-    {
-      "image": "https://placehold.co/600x700/f8f8f8/333?text=工作坊",
-      "alt": "工作坊照片"
-    },
-    {
-      "image": "https://placehold.co/600x500/f3f3f3/333?text=材料测试",
-      "alt": "材料测试"
-    },
-    {
-      "image": "https://placehold.co/600x900/fefefe/333?text=现场勘景",
-      "alt": "现场勘景"
-    },
-    {
-      "image": "https://placehold.co/600x600/f6f6f6/333?text=细节",
-      "alt": "作品细节"
     }
   ]
 }

@@ -37,6 +37,72 @@
     <!-- 内容管理界面 (默认隐藏) -->
     <div id="management-section" class="max-w-4xl mx-auto hidden">
         <h1 class="text-3xl font-bold mb-6">内容管理</h1>
+
+        <!-- 新增：全局内容管理 -->
+        <div class="card">
+            <h2 class="text-2xl font-bold mb-4">网站全局设置</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div><label class="label">艺术家姓名</label><input id="site-artist_name" class="input"></div>
+                <div><label class="label">联系邮箱</label><input id="site-contact_email" class="input"></div>
+                
+                <div class="md:col-span-2"><hr></div>
+                
+                <div><label class="label">首页标题</label><input id="site-hero_title" class="input"></div>
+                <div><label class="label">首页副标题</label><input id="site-hero_subtitle" class="input"></div>
+                <div>
+                    <label class="label">首页背景视频 URL</label>
+                    <div class="flex gap-2 items-center">
+                        <input id="site-hero_video_url" class="input url-input flex-grow">
+                        <button onclick="triggerUpload(this)" class="btn btn-secondary">上传视频</button>
+                    </div>
+                    <p class="upload-status text-sm mt-1"></p>
+                </div>
+                <div>
+                    <label class="label">视频封面图 URL (手机端后备)</label>
+                    <div class="flex gap-2 items-center">
+                        <input id="site-hero_poster_url" class="input url-input flex-grow">
+                        <button onclick="triggerUpload(this)" class="btn btn-secondary">上传图片</button>
+                    </div>
+                    <p class="upload-status text-sm mt-1"></p>
+                </div>
+                
+                <div class="md:col-span-2"><hr></div>
+
+                <div><label class="label">理念板块标题</label><input id="site-philosophy_title" class="input"></div>
+                <div class="md:col-span-2"><label class="label">理念板块引言</label><textarea id="site-philosophy_quote" class="input h-24"></textarea></div>
+
+                <div class="md:col-span-2"><hr></div>
+
+                <div><label class="label">手记板块标题</label><input id="site-journal_title" class="input"></div>
+                <div><label class="label">手记板块副标题</label><input id="site-journal_subtitle" class="input"></div>
+
+                <div class="md:col-span-2"><hr></div>
+                
+                <div><label class="label">足迹板块标题</label><input id="site-map_title" class="input"></div>
+                <div><label class="label">足迹板块副标题</label><input id="site-map_subtitle" class="input"></div>
+                <div>
+                    <label class="label">足迹地图图片 URL</label>
+                    <div class="flex gap-2 items-center">
+                        <input id="site-map_image_url" class="input url-input flex-grow">
+                        <button onclick="triggerUpload(this)" class="btn btn-secondary">上传图片</button>
+                    </div>
+                    <p class="upload-status text-sm mt-1"></p>
+                </div>
+
+                <div class="md:col-span-2"><hr></div>
+
+                <div><label class="label">联系板块标题</label><input id="site-contact_title" class="input"></div>
+                <div><label class="label">联系板块副标题</label><input id="site-contact_subtitle" class="input"></div>
+                
+                <div class="md:col-span-2"><hr></div>
+                
+                <div class="md:col-span-2">
+                    <h3 class="text-xl font-bold mb-4">媒体与展览列表</h3>
+                    <div id="exhibitions-container" class="space-y-4"></div>
+                    <button id="add-exhibition" class="btn btn-secondary mt-4">＋ 添加展览条目</button>
+                </div>
+            </div>
+        </div>
         
         <div class="card">
             <h2 class="text-2xl font-bold mb-4">项目管理</h2>
@@ -66,26 +132,17 @@
         // --- 认证逻辑 ---
         async function attemptLogin() {
             const password = passwordInput.value;
-            if (!password) {
-                showLoginError('请输入密码。');
-                return;
-            }
+            if (!password) { showLoginError('请输入密码。'); return; }
             try {
-                // 部署后，应使用相对路径 '/api/admin/data'
                 const response = await fetch('/api/admin/data', { headers: { 'X-Admin-Password': password } });
                 if (response.ok) {
                     sessionStorage.setItem('admin-password', password);
                     loginSection.classList.add('hidden');
                     managementSection.classList.remove('hidden');
                     const data = await response.json();
-                    renderProjects(data.projects);
-                    renderJournal(data.journal);
-                } else {
-                    showLoginError('密码错误，请重试。');
-                }
-            } catch (error) {
-                showLoginError('无法连接到服务器。');
-            }
+                    renderAllData(data);
+                } else { showLoginError('密码错误，请重试。'); }
+            } catch (error) { showLoginError('无法连接到服务器。'); }
         }
         function showLoginError(message) {
             loginError.textContent = message;
@@ -102,6 +159,35 @@
         }
 
         // --- 数据渲染 ---
+        function renderAllData(data) {
+            renderSiteData(data.site_data);
+            renderProjects(data.projects);
+            renderJournal(data.journal);
+        }
+
+        function renderSiteData(data) {
+            if (!data) return;
+            document.getElementById('site-artist_name').value = data.artist_name;
+            document.getElementById('site-contact_email').value = data.contact_email;
+            document.getElementById('site-hero_title').value = data.hero_title;
+            document.getElementById('site-hero_subtitle').value = data.hero_subtitle;
+            document.getElementById('site-hero_video_url').value = data.hero_video_url;
+            document.getElementById('site-hero_poster_url').value = data.hero_poster_url; // 新增
+            document.getElementById('site-philosophy_title').value = data.philosophy_title;
+            document.getElementById('site-philosophy_quote').value = data.philosophy_quote;
+            document.getElementById('site-journal_title').value = data.journal_title;
+            document.getElementById('site-journal_subtitle').value = data.journal_subtitle;
+            document.getElementById('site-map_title').value = data.map_title;
+            document.getElementById('site-map_subtitle').value = data.map_subtitle;
+            document.getElementById('site-map_image_url').value = data.map_image_url;
+            document.getElementById('site-contact_title').value = data.contact_title;
+            document.getElementById('site-contact_subtitle').value = data.contact_subtitle;
+            
+            const exhibitionsContainer = document.getElementById('exhibitions-container');
+            exhibitionsContainer.innerHTML = '';
+            data.exhibitions.forEach((ex, index) => exhibitionsContainer.innerHTML += createExhibitionHTML(ex, index));
+        }
+
         function renderProjects(projects) {
             const container = document.getElementById('projects-container');
             container.innerHTML = '';
@@ -114,119 +200,65 @@
         }
 
         // --- HTML模板 ---
-        function createProjectHTML(project, index) {
+        function createProjectHTML(project, index) { /* ... 保持不变 ... */ return `<div class="project-item border-t pt-6"><h3 class="text-xl font-bold mb-4">项目 #${index + 1}</h3><div class="grid grid-cols-2 gap-4"><div><label class="label">ID</label><input class="input" value="${project.id || ''}"></div><div><label class="label">地点与年份</label><input class="input" value="${project.location || ''}"></div><div class="col-span-2"><label class="label">标题</label><input class="input" value="${project.title || ''}"></div><div class="col-span-2"><label class="label">图片URL</label><div class="flex gap-2 items-center"><input class="input url-input flex-grow" value="${project.image || ''}"><button onclick="triggerUpload(this)" class="btn btn-secondary">上传图片</button></div><p class="upload-status text-sm mt-1"></p></div><div><label class="label">简短描述</label><textarea class="input h-24">${project.description || ''}</textarea></div><div><label class="label">完整描述</label><textarea class="input h-24">${project.full_description || ''}</textarea></div><div><label class="label">图片位置 (left/right)</label><input class="input" value="${project.order || 'left'}"></div></div><button onclick="removeElement(this, '.project-item')" class="btn btn-danger mt-4">删除此项目</button></div>`; }
+        function createJournalHTML(journal, index) { /* ... 保持不变 ... */ return `<div class="journal-item flex items-center gap-4"><div class="flex-grow"><label class="label">图片 #${index + 1} URL</label><div class="flex gap-2 items-center"><input class="input url-input flex-grow" value="${journal.image || ''}"><button onclick="triggerUpload(this)" class="btn btn-secondary">上传图片</button></div><p class="upload-status text-sm mt-1"></p></div><div class="flex-grow"><label class="label">图片描述 (alt)</label><input class="input" value="${journal.alt || ''}"></div><button onclick="removeElement(this, '.journal-item')" class="btn btn-danger self-end">删除</button></div>`; }
+        function createExhibitionHTML(ex, index) {
             return `
-                <div class="project-item border-t pt-6">
-                    <h3 class="text-xl font-bold mb-4">项目 #${index + 1}</h3>
-                    <div class="grid grid-cols-2 gap-4">
-                        <div><label class="label">ID</label><input class="input" value="${project.id || ''}"></div>
-                        <div><label class="label">地点与年份</label><input class="input" value="${project.location || ''}"></div>
-                        <div class="col-span-2"><label class="label">标题</label><input class="input" value="${project.title || ''}"></div>
-                        <div class="col-span-2">
-                            <label class="label">图片URL</label>
-                            <div class="flex gap-2 items-center">
-                                <input class="input url-input flex-grow" value="${project.image || ''}">
-                                <button onclick="triggerUpload(this)" class="btn btn-secondary">上传图片</button>
-                            </div>
-                            <p class="upload-status text-sm mt-1"></p>
-                        </div>
-                        <div><label class="label">简短描述</label><textarea class="input h-24">${project.description || ''}</textarea></div>
-                        <div><label class="label">完整描述</label><textarea class="input h-24">${project.full_description || ''}</textarea></div>
-                        <div><label class="label">图片位置 (left/right)</label><input class="input" value="${project.order || 'left'}"></div>
-                    </div>
-                    <button onclick="removeElement(this, '.project-item')" class="btn btn-danger mt-4">删除此项目</button>
-                </div>
-            `;
-        }
-        function createJournalHTML(journal, index) {
-            return `
-                <div class="journal-item flex items-center gap-4">
-                    <div class="flex-grow">
-                        <label class="label">图片 #${index + 1} URL</label>
-                        <div class="flex gap-2 items-center">
-                           <input class="input url-input flex-grow" value="${journal.image || ''}">
-                           <button onclick="triggerUpload(this)" class="btn btn-secondary">上传图片</button>
-                        </div>
-                        <p class="upload-status text-sm mt-1"></p>
-                    </div>
-                    <div class="flex-grow"><label class="label">图片描述 (alt)</label><input class="input" value="${journal.alt || ''}"></div>
-                    <button onclick="removeElement(this, '.journal-item')" class="btn btn-danger self-end">删除</button>
+                <div class="exhibition-item flex items-center gap-4">
+                    <div class="w-1/4"><label class="label">年份</label><input class="input" value="${ex.year || ''}"></div>
+                    <div class="flex-grow"><label class="label">标题</label><input class="input" value="${ex.title || ''}"></div>
+                    <button onclick="removeElement(this, '.exhibition-item')" class="btn btn-danger self-end">删除</button>
                 </div>
             `;
         }
 
         // --- 事件处理 ---
-        document.getElementById('add-project').addEventListener('click', () => {
-            const container = document.getElementById('projects-container');
-            const newProject = { id: '0' + (container.children.length + 1), order: 'left' };
-            container.insertAdjacentHTML('beforeend', createProjectHTML(newProject, container.children.length));
-        });
-        document.getElementById('add-journal').addEventListener('click', () => {
-            const container = document.getElementById('journal-container');
-            container.insertAdjacentHTML('beforeend', createJournalHTML({}, container.children.length));
-        });
-        function removeElement(btn, parentSelector) {
-            btn.closest(parentSelector).remove();
-        }
+        document.getElementById('add-project').addEventListener('click', () => { const c = document.getElementById('projects-container'); c.insertAdjacentHTML('beforeend', createProjectHTML({ id: '0' + (c.children.length + 1), order: 'left' }, c.children.length)); });
+        document.getElementById('add-journal').addEventListener('click', () => { const c = document.getElementById('journal-container'); c.insertAdjacentHTML('beforeend', createJournalHTML({}, c.children.length)); });
+        document.getElementById('add-exhibition').addEventListener('click', () => { const c = document.getElementById('exhibitions-container'); c.insertAdjacentHTML('beforeend', createExhibitionHTML({}, c.children.length)); });
+        function removeElement(btn, parentSelector) { btn.closest(parentSelector).remove(); }
 
         // --- 图片上传逻辑 ---
         function triggerUpload(button) {
             const fileInput = document.createElement('input');
             fileInput.type = 'file';
-            fileInput.accept = 'image/*';
+            fileInput.accept = 'image/*,video/*'; // 允许上传视频
             fileInput.onchange = (e) => handleImageUpload(e, button);
             fileInput.click();
         }
-        async function handleImageUpload(event, button) {
-            const file = event.target.files[0];
-            if (!file) return;
-
-            const urlInput = button.previousElementSibling;
-            const statusP = button.parentElement.nextElementSibling;
-            const password = sessionStorage.getItem('admin-password');
-
-            const formData = new FormData();
-            formData.append('image', file);
-            
-            statusP.textContent = '正在上传...';
-            try {
-                const response = await fetch('/api/admin/upload', {
-                    method: 'POST',
-                    headers: { 'X-Admin-Password': password },
-                    body: formData
-                });
-                const result = await response.json();
-                if (response.ok) {
-                    urlInput.value = result.url;
-                    statusP.textContent = '上传成功！';
-                } else {
-                    throw new Error(result.message || '上传失败');
-                }
-            } catch (error) {
-                console.error('Upload failed:', error);
-                statusP.textContent = `上传失败: ${error.message}`;
-            }
-        }
+        async function handleImageUpload(event, button) { /* ... 保持不变 ... */ const file = event.target.files[0]; if (!file) return; const urlInput = button.previousElementSibling; const statusP = button.parentElement.nextElementSibling; const password = sessionStorage.getItem('admin-password'); const formData = new FormData(); formData.append('image', file); statusP.textContent = '正在上传...'; try { const response = await fetch('/api/admin/upload', { method: 'POST', headers: { 'X-Admin-Password': password }, body: formData }); const result = await response.json(); if (response.ok) { urlInput.value = result.url; statusP.textContent = '上传成功！'; } else { throw new Error(result.message || '上传失败'); } } catch (error) { console.error('Upload failed:', error); statusP.textContent = `上传失败: ${error.message}`; } }
 
         // --- 保存数据 ---
         document.getElementById('save-all').addEventListener('click', async () => {
             const password = sessionStorage.getItem('admin-password');
             if (!password) { alert('认证已过期，请重新登录。'); location.reload(); return; }
 
-            const projectsData = Array.from(document.querySelectorAll('.project-item')).map(item => ({
-                id: item.querySelectorAll('input')[0].value,
-                location: item.querySelectorAll('input')[1].value,
-                title: item.querySelectorAll('input')[2].value,
-                image: item.querySelectorAll('input')[3].value,
-                description: item.querySelectorAll('textarea')[0].value,
-                full_description: item.querySelectorAll('textarea')[1].value,
-                order: item.querySelectorAll('input')[4].value,
-            }));
-            const journalData = Array.from(document.querySelectorAll('.journal-item')).map(item => ({
-                image: item.querySelectorAll('input')[0].value,
-                alt: item.querySelectorAll('input')[1].value,
-            }));
-            const fullData = { projects: projectsData, journal: journalData };
+            const siteData = {
+                artist_name: document.getElementById('site-artist_name').value,
+                contact_email: document.getElementById('site-contact_email').value,
+                hero_title: document.getElementById('site-hero_title').value,
+                hero_subtitle: document.getElementById('site-hero_subtitle').value,
+                hero_video_url: document.getElementById('site-hero_video_url').value,
+                hero_poster_url: document.getElementById('site-hero_poster_url').value, // 新增
+                philosophy_title: document.getElementById('site-philosophy_title').value,
+                philosophy_quote: document.getElementById('site-philosophy_quote').value,
+                journal_title: document.getElementById('site-journal_title').value,
+                journal_subtitle: document.getElementById('site-journal_subtitle').value,
+                map_title: document.getElementById('site-map_title').value,
+                map_subtitle: document.getElementById('site-map_subtitle').value,
+                map_image_url: document.getElementById('site-map_image_url').value,
+                contact_title: document.getElementById('site-contact_title').value,
+                contact_subtitle: document.getElementById('site-contact_subtitle').value,
+                exhibitions: Array.from(document.querySelectorAll('.exhibition-item')).map(item => ({
+                    year: item.querySelectorAll('input')[0].value,
+                    title: item.querySelectorAll('input')[1].value,
+                }))
+            };
+
+            const projectsData = Array.from(document.querySelectorAll('.project-item')).map(item => ({ id: item.querySelectorAll('input')[0].value, location: item.querySelectorAll('input')[1].value, title: item.querySelectorAll('input')[2].value, image: item.querySelectorAll('input')[3].value, description: item.querySelectorAll('textarea')[0].value, full_description: item.querySelectorAll('textarea')[1].value, order: item.querySelectorAll('input')[4].value, }));
+            const journalData = Array.from(document.querySelectorAll('.journal-item')).map(item => ({ image: item.querySelectorAll('input')[0].value, alt: item.querySelectorAll('input')[1].value, }));
+            
+            const fullData = { site_data: siteData, projects: projectsData, journal: journalData };
 
             try {
                 const response = await fetch('/api/admin/update', {
@@ -236,9 +268,7 @@
                 });
                 const result = await response.json();
                 alert(result.message || '保存成功！');
-            } catch (error) {
-                alert('保存失败，请查看控制台信息。');
-            }
+            } catch (error) { alert('保存失败，请查看控制台信息。'); }
         });
 
         // --- 启动 ---

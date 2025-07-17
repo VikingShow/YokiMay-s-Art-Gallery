@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>姚琪美的艺术世界</title>
+    <title id="site-title">YOKIMAY | GALLERY</title>
     <!-- 引入Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- 引入Google Fonts: Inter & Source Code Pro for a "blueprint" feel -->
@@ -271,16 +271,24 @@
     
     <!-- 加载动画 -->
     <div id="loader" class="loader">
-        <div class="loader-name">姚琪美的艺术世界</div>
+        <div id="loader-name" class="loader-name">YOKIMAY</div>
     </div>
     
     <!-- 光影跟随元素 -->
     <div id="mouse-light"></div>
 
+    <!-- 【新增】固定的视频背景容器 -->
+    <div id="video-background-container" class="fixed top-0 left-0 w-full h-full -z-10">
+        <video autoplay loop muted playsinline class="w-full h-full object-cover" id="hero-video" poster="">
+            <source src="" type="video/mp4" id="hero-video-source">
+        </video>
+        <div class="absolute inset-0 bg-black opacity-40"></div>
+    </div>
+
     <!-- 导航栏 (保持深色) -->
     <header id="header" class="fixed top-0 left-0 right-0 z-50 transition-colors duration-500">
         <div class="container mx-auto px-6 py-5 flex justify-between items-center">
-            <a href="#home" class="text-xl font-bold text-white tracking-widest uppercase">YokiMay</a>
+            <a href="#home" id="artist-name-header" class="text-xl font-bold text-white tracking-widest uppercase">艺术家姓名</a>
             <nav class="hidden md:flex items-center space-x-10 text-sm uppercase tracking-wider">
                 <a href="#projects" class="text-gray-300 hover:text-white transition-colors nav-link">项目</a>
                 <a href="#philosophy" class="text-gray-300 hover:text-white transition-colors nav-link">理念</a>
@@ -300,10 +308,9 @@
         
         <!-- 【已更新】首页 Hero 部分 -->
         <section id="home" class="h-screen relative flex items-center justify-center overflow-hidden">
-            <!-- Video Background -->
-            <video autoplay loop muted playsinline class="absolute z-0 w-full h-full object-cover">
-                <!-- **重要提示**: 请将下面的 src 替换为您自己的视频文件路径 -->
-                <source src="/videos/background.mp4" type="video/mp4">
+            <!-- 【关键修改】在这里加入了 poster 属性 -->
+            <video autoplay loop muted playsinline class="absolute z-0 w-full h-full object-cover" id="hero-video" poster="">
+                <source src="" type="video/mp4" id="hero-video-source">
                 您的浏览器不支持视频标签。
             </video>
             
@@ -312,13 +319,13 @@
             
             <!-- Hero Content -->
             <div class="relative z-20 text-center text-white p-8">
-                <h1 class="text-4xl md:text-6xl font-bold tracking-tight">重塑公共空间叙事</h1>
-                <p class="mt-4 text-lg md:text-xl max-w-2xl mx-auto">艺术作为城市肌理的一部分，连接人与环境的对话。</p>
+                <h1 id="hero-title" class="text-4xl md:text-6xl font-bold tracking-tight"></h1>
+                <p id="hero-subtitle" class="mt-4 text-lg md:text-xl max-w-2xl mx-auto"></p>
             </div>
         </section>
 
         <!-- 项目展示 -->
-        <section id="projects" class="py-20 md:py-32 bg-transparent">
+        <section id="projects" class="py-20 md:py-32 bg-white relative z-10">
             <div class="container mx-auto px-6">
                 <div class="space-y-24 md:space-y-32" id="projects-container">
                     <!-- 项目将由JS动态生成 -->
@@ -327,25 +334,23 @@
         </section>
 
         <!-- 艺术理念 -->
-        <section id="philosophy" class="py-20 md:py-32 bg-transparent">
+        <section id="philosophy" class="py-20 md:py-32 bg-white relative z-10">
             <div class="container mx-auto px-6 reveal">
                 <div class="max-w-3xl mx-auto text-center">
-                    <h2 class="text-3xl md:text-4xl mb-12 text-gray-900">艺术理念</h2>
+                    <h2 id="philosophy-title" class="text-3xl md:text-4xl mb-12 text-gray-900"></h2>
                     <div class="quote-wrapper">
-                        <p class="text-2xl text-gray-800 mb-8 leading-relaxed">
-                            我相信艺术不应被束之高阁，而应成为日常的呼吸。我的实践是探索如何将艺术植入公共领域，让它成为一种催化剂，激发人们对所处环境的重新感知和思考。
-                        </p>
+                        <p id="philosophy-quote" class="text-2xl text-gray-800 mb-8 leading-relaxed"></p>
                     </div>
                 </div>
             </div>
         </section>
         
         <!-- 创作手记 -->
-        <section id="journal" class="py-20 md:py-32 bg-transparent">
+        <section id="journal" class="py-20 md:py-32 bg-white relative z-10">
             <div class="container mx-auto px-6 reveal">
                 <div class="max-w-3xl mx-auto text-center mb-16">
-                    <h2 class="text-3xl md:text-4xl mb-4 text-gray-900">创作手记</h2>
-                    <p class="text-gray-600">灵感的瞬间、过程的推敲与最终呈现背后的故事。</p>
+                    <h2 id="journal-title" class="text-3xl md:text-4xl mb-4 text-gray-900"></h2>
+                    <p id="journal-subtitle" class="text-gray-600"></p>
                 </div>
                 <div class="journal-grid" id="journal-container">
                     <!-- 手记条目将由JS动态生成 -->
@@ -354,31 +359,26 @@
         </section>
 
         <!-- 作品足迹地图 -->
-        <section id="map" class="py-20 md:py-32 bg-transparent">
+        <section id="map" class="py-20 md:py-32 bg-white relative z-10">
             <div class="container mx-auto px-6 text-center reveal">
-                <h2 class="text-3xl md:text-4xl mb-4 text-gray-900">作品足迹</h2>
-                <p class="text-gray-600 mb-12 max-w-2xl mx-auto">我的作品散布于全球多个城市，它们在各自的土地上呼吸，与当地的文化交融。</p>
+                <h2 id="map-title" class="text-3xl md:text-4xl mb-4 text-gray-900"></h2>
+                <p id="map-subtitle" class="text-gray-600 mb-12 max-w-2xl mx-auto"></p>
                 <div class="border border-gray-200 p-4 rounded-lg">
-                    <img src="https://placehold.co/1600x800/ffffff/cccccc?text=世界地图+与+作品标记点" alt="作品分布地图" class="w-full h-auto rounded-sm">
+                    <img src="" alt="作品分布地图" class="w-full h-auto rounded-sm" id="map-image">
                 </div>
             </div>
         </section>
 
         <!-- 联系方式 -->
-        <section id="contact" class="py-20 md:py-32 bg-transparent">
+        <section id="contact" class="py-20 md:py-32 bg-white relative z-10">
             <div class="container mx-auto px-6 text-center reveal">
-                <h2 class="text-3xl md:text-4xl mb-4 text-gray-900">联系与合作</h2>
-                <p class="text-gray-600 mb-8 max-w-2xl mx-auto">对于项目委托、展览邀请或媒体垂询，请通过邮件联系。</p>
-                <a href="mailto:your.email@example.com" class="inline-block bg-black text-white font-bold py-3 px-10 rounded-full hover:bg-gray-800 transition-colors text-lg tracking-wider">
-                    your.email@example.com
-                </a>
+                <h2 id="contact-title" class="text-3xl md:text-4xl mb-4 text-gray-900"></h2>
+                <p id="contact-subtitle" class="text-gray-600 mb-8 max-w-2xl mx-auto"></p>
+                <a href="" id="contact-email-link" class="inline-block bg-black text-white font-bold py-3 px-10 rounded-full hover:bg-gray-800 transition-colors text-lg tracking-wider"></a>
                 <div class="mt-20 border-t border-gray-200 pt-12 max-w-4xl mx-auto">
                     <h4 class="text-xl text-gray-900 mb-6">媒体与展览</h4>
-                    <div class="text-left grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-4 text-gray-600">
-                        <p><span class="font-mono text-gray-400">[2023]</span> Art & Space Magazine - 封面专题</p>
-                        <p><span class="font-mono text-gray-400">[2023]</span> 威尼斯建筑双年展 - 平行展</p>
-                        <p><span class="font-mono text-gray-400">[2022]</span> Urbanism Today - “年度公共艺术家”</p>
-                        <p><span class="font-mono text-gray-400">[2021]</span> “城市回响”个展 - 纽约现代艺术博物馆</p>
+                    <div id="exhibitions-container" class="text-left grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-4 text-gray-600">
+                        <!-- 展览条目将由JS动态生成 -->
                     </div>
                 </div>
             </div>
@@ -388,7 +388,7 @@
     <!-- 页脚 -->
     <footer class="bg-transparent py-8 relative z-10">
         <div class="container mx-auto px-6 text-center text-gray-400">
-            <p>&copy; <span id="year"></span> YokiMay. 版权所有.</p>
+            <p>&copy; <span id="year"></span> <span id="artist-name-footer"></span>. 版权所有.</p>
         </div>
     </footer>
 
@@ -445,8 +445,47 @@
                 throw new Error('Network response was not ok');
             }
             const data = await response.json();
+            renderSiteData(data.site_data);
             renderProjects(data.projects);
             renderJournal(data.journal);
+        }
+
+        function renderSiteData(data) {
+            if (!data) return;
+            // 全局
+            document.getElementById('site-title').textContent = `${data.artist_name} | GALLERY`;
+            document.getElementById('loader-name').textContent = data.artist_name;
+            document.getElementById('artist-name-header').textContent = data.artist_name;
+            document.getElementById('artist-name-footer').textContent = data.artist_name;
+            // 首页 Hero
+            const heroVideo = document.getElementById('hero-video');
+            heroVideo.poster = data.hero_poster_url; // 设置封面图
+            document.getElementById('hero-video-source').src = data.hero_video_url;
+            heroVideo.load(); // 重新加载视频以应用新源
+            document.getElementById('hero-title').textContent = data.hero_title;
+            document.getElementById('hero-subtitle').textContent = data.hero_subtitle;
+            // 理念
+            document.getElementById('philosophy-title').textContent = data.philosophy_title;
+            document.getElementById('philosophy-quote').textContent = data.philosophy_quote;
+            // 手记
+            document.getElementById('journal-title').textContent = data.journal_title;
+            document.getElementById('journal-subtitle').textContent = data.journal_subtitle;
+            // 地图
+            document.getElementById('map-title').textContent = data.map_title;
+            document.getElementById('map-subtitle').textContent = data.map_subtitle;
+            document.getElementById('map-image').src = data.map_image_url;
+            // 联系
+            document.getElementById('contact-title').textContent = data.contact_title;
+            document.getElementById('contact-subtitle').textContent = data.contact_subtitle;
+            const emailLink = document.getElementById('contact-email-link');
+            emailLink.href = `mailto:${data.contact_email}`;
+            emailLink.textContent = data.contact_email;
+            // 展览
+            const exhibitionsContainer = document.getElementById('exhibitions-container');
+            exhibitionsContainer.innerHTML = '';
+            data.exhibitions.forEach(ex => {
+                exhibitionsContainer.innerHTML += `<p><span class="font-mono text-gray-400">${ex.year}</span> ${ex.title}</p>`;
+            });
         }
 
         function renderProjects(projects) {
