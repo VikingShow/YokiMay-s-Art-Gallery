@@ -1,3 +1,5 @@
+// 引入 dotenv 来管理环境变量
+require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
 const fs = require('fs');
@@ -6,12 +8,12 @@ const bodyParser = require('body-parser');
 const multer = require('multer'); // 引入 multer
 
 const app = express();
-const PORT = 3020; // 确保使用您服务器上未被占用的端口
+const PORT = process.env.PORT || 3000; // 确保使用您服务器上未被占用的端口
 const DB_PATH = path.join(__dirname, 'db.json');
 
 // --- 安全设置 ---
-const ADMIN_USER = 'artist';
-const ADMIN_PASS = '123456'; // !!请务必使用您设置的强密码!!
+const ADMIN_USER = process.env.ADMIN_USER || 'admin';
+const ADMIN_PASS = process.env.ADMIN_PASS || 'admin'; // !!请务必使用您设置的强密码!!
 
 // --- 图片上传设置 ---
 const UPLOADS_DIR = path.join(__dirname, '../frontend/uploads');
