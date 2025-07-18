@@ -71,8 +71,26 @@ app.get('/api/admin/data', checkAuth, (req, res) => {
     });
 });
 
+// --- 后端输入验证函数 ---
+const validateData = (data) => {
+    if (!data || typeof data !== 'object') return '无效的数据格式';
+    if (!data.site_data || !Array.isArray(data.projects) || !Array.isArray(data.journal)) {
+        return '缺少必要的数据部分 (site_data, projects, journal)';
+    }
+    for (const project of data.projects) {
+        if (project.order && !['left', 'right'].includes(project.order)) {
+            return `项目 "${project.title}" 中的 'order' 值无效，必须是 'left' 或 'right'。`;
+        }
+    }
+    return null; // 验证通过
+};
+
 app.post('/api/admin/update', checkAuth, (req, res) => {
     const newData = req.body;
+    const validationError = validateData(newData);
+    if (validationError) {
+        return res.status(400).json({ message: `验证失败：${validationError}` });
+    }
     fs.copyFile(DB_PATH, `${DB_PATH}.bak`, (err) => {
         if (err) console.error('Failed to create backup:', err);
     });
