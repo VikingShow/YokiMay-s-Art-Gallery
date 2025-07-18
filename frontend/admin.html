@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <title>艺术家网站 - 内容管理</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js"></script>
     <style>
         body { background-color: #f3f4f6; font-family: sans-serif; }
         .card { background: white; border-radius: 8px; padding: 24px; margin-bottom: 24px; box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1); }
@@ -17,6 +18,8 @@
         .btn-secondary { background-color: #e5e7eb; color: #374151; }
         .btn-secondary:hover { background-color: #d1d5db; }
         .upload-status { font-style: italic; color: #6b7280; }
+        .drag-handle { cursor: grab; color: #9ca3af; padding: 0 8px; }
+        .drag-handle:active { cursor: grabbing; }
     </style>
 </head>
 <body class="p-8">
@@ -141,6 +144,7 @@
                     managementSection.classList.remove('hidden');
                     const data = await response.json();
                     renderAllData(data);
+                    initializeDragAndDrop();
                 } else { showLoginError('密码错误，请重试。'); }
             } catch (error) { showLoginError('无法连接到服务器。'); }
         }
@@ -200,8 +204,8 @@
         }
 
         // --- HTML模板 ---
-        function createProjectHTML(project, index) {  return `<div class="project-item border-t pt-6"><h3 class="text-xl font-bold mb-4">项目 #${index + 1}</h3><div class="grid grid-cols-2 gap-4"><div><label class="label">ID</label><input class="input" value="${project.id || ''}"></div><div><label class="label">地点与年份</label><input class="input" value="${project.location || ''}"></div><div class="col-span-2"><label class="label">标题</label><input class="input" value="${project.title || ''}"></div><div class="col-span-2"><label class="label">图片URL</label><div class="flex gap-2 items-center"><input class="input url-input flex-grow" value="${project.image || ''}"><button onclick="triggerUpload(this)" class="btn btn-secondary">上传图片</button></div><p class="upload-status text-sm mt-1"></p></div><div><label class="label">简短描述</label><textarea class="input h-24">${project.description || ''}</textarea></div><div><label class="label">完整描述</label><textarea class="input h-24">${project.full_description || ''}</textarea></div><div><label class="label">图片位置 (left/right)</label><input class="input" value="${project.order || 'left'}"></div></div><button onclick="removeElement(this, '.project-item')" class="btn btn-danger mt-4">删除此项目</button></div>`; }
-        function createJournalHTML(journal, index) {  return `<div class="journal-item flex items-center gap-4"><div class="flex-grow"><label class="label">图片 #${index + 1} URL</label><div class="flex gap-2 items-center"><input class="input url-input flex-grow" value="${journal.image || ''}"><button onclick="triggerUpload(this)" class="btn btn-secondary">上传图片</button></div><p class="upload-status text-sm mt-1"></p></div><div class="flex-grow"><label class="label">图片描述 (alt)</label><input class="input" value="${journal.alt || ''}"></div><button onclick="removeElement(this, '.journal-item')" class="btn btn-danger self-end">删除</button></div>`; }
+        function createProjectHTML(project, index) {  return `<div class="project-item border-t pt-6"><span class="drag-handle">☰</span><h3 class="text-xl font-bold mb-4">项目 #${index + 1}</h3><div class="grid grid-cols-2 gap-4"><div><label class="label">ID</label><input class="input" value="${project.id || ''}"></div><div><label class="label">地点与年份</label><input class="input" value="${project.location || ''}"></div><div class="col-span-2"><label class="label">标题</label><input class="input" value="${project.title || ''}"></div><div class="col-span-2"><label class="label">图片URL</label><div class="flex gap-2 items-center"><input class="input url-input flex-grow" value="${project.image || ''}"><button onclick="triggerUpload(this)" class="btn btn-secondary">上传图片</button></div><p class="upload-status text-sm mt-1"></p></div><div><label class="label">简短描述</label><textarea class="input h-24">${project.description || ''}</textarea></div><div><label class="label">完整描述</label><textarea class="input h-24">${project.full_description || ''}</textarea></div><div><label class="label">图片位置 (left/right)</label><input class="input" value="${project.order || 'left'}"></div></div><button onclick="removeElement(this, '.project-item')" class="btn btn-danger mt-4">删除此项目</button></div>`; }
+        function createJournalHTML(journal, index) {  return `<div class="journal-item flex items-center gap-4"><div class="flex-grow"><span class="drag-handle">☰</span><label class="label">图片 #${index + 1} URL</label><div class="flex gap-2 items-center"><input class="input url-input flex-grow" value="${journal.image || ''}"><button onclick="triggerUpload(this)" class="btn btn-secondary">上传图片</button></div><p class="upload-status text-sm mt-1"></p></div><div class="flex-grow"><label class="label">图片描述 (alt)</label><input class="input" value="${journal.alt || ''}"></div><button onclick="removeElement(this, '.journal-item')" class="btn btn-danger self-end">删除</button></div>`; }
         function createExhibitionHTML(ex, index) {
             return `
                 <div class="exhibition-item flex items-center gap-4">
@@ -270,6 +274,21 @@
                 alert(result.message || '保存成功！');
             } catch (error) { alert('保存失败，请查看控制台信息。'); }
         });
+
+        // --- 【新增】初始化拖拽排序 ---
+        function initializeDragAndDrop() {
+            const projectsContainer = document.getElementById('projects-container');
+            new Sortable(projectsContainer, {
+                animation: 150,
+                handle: '.drag-handle', // 指定拖拽手柄
+            });
+
+            const journalContainer = document.getElementById('journal-container');
+            new Sortable(journalContainer, {
+                animation: 150,
+                handle: '.drag-handle',
+            });
+        }
 
         // --- 启动 ---
         checkSession();
